@@ -1,290 +1,203 @@
+// src/pages/OrderSuccess.tsx
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle, Package, Truck, MapPin, Calendar, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Home, Loader2, ShoppingBag } from 'lucide-react';
+import api from '@/services/api';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import toast from 'react-hot-toast';
 
-interface Order {
-  id: string;
-  items: Array<{
-    id: string;
-    name: string;
-    price: number;
-    quantity: number;
-    image: string;
-  }>;
-  total: number;
-  shippingAddress: {
-    firstName: string;
-    lastName: string;
-    address: string;
-    city: string;
-    state: string;
-    zipCode: string;
-  };
-  createdAt: string;
+interface OrderItem {
+  _id: string;
+  name: string;
+  qty: number;
+  price: number;
+  image?: string;
 }
 
-const OrderSuccess = () => {
-  const [order, setOrder] = useState<Order | null>(null);
+interface ShippingAddress {
+  addressLine1: string;
+  city: string;
+  state: string;
+  pincode: string;
+}
+
+interface Order {
+  _id: string;
+  createdAt: string;
+  totalPrice: number;
+  paymentMethod: string;
+  orderItems: OrderItem[];
+  shippingAddress: ShippingAddress;
+}
+
+const OrderSuccess: React.FC = () => {
+  const location = useLocation();
   const navigate = useNavigate();
 
+  const state = location.state as { orderId?: string } | null;
+  const [orderId, setOrderId] = useState<string | null>(state?.orderId || null);
+  const [order, setOrder] = useState<Order | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  // Get orderId either from router state or from localStorage (page refresh)
   useEffect(() => {
-    const orderData = localStorage.getItem('lastOrder');
-    if (orderData) {
-      setOrder(JSON.parse(orderData));
+    const fromState = (location.state as any)?.orderId as string | undefined;
+
+    if (fromState) {
+      localStorage.setItem('lastOrderId', fromState);
+      setOrderId(fromState);
+    } else {
+      const stored = localStorage.getItem('lastOrderId');
+      if (stored) {
+        setOrderId(stored);
+      }
     }
+  }, [location.state]);
 
-    return () => {
-      // Cleanup last order from localStorage
-      localStorage.removeItem('lastOrder');
+  // Fetch order from backend
+  useEffect(() => {
+    const fetchOrder = async () => {
+      if (!orderId) {
+        setLoading(false);
+        setNotFound(true);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const { data } = await api.get(`/api/orders/${orderId}`);
+        setOrder(data);
+        setNotFound(false);
+      } catch (err: any) {
+        console.error('Failed to load order', err);
+        setNotFound(true);
+        toast.error(
+          err?.response?.data?.message || 'Could not load your order details.'
+        );
+      } finally {
+        setLoading(false);
+      }
     };
-  }, []);
 
-  if (!order) {
+    fetchOrder();
+  }, [orderId]);
+
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">Order Not Found</h1>
-          <Link to="/">
-            <Button>Go Home</Button>
-          </Link>
-        </div>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-muted-foreground">
+        <Loader2 className="w-6 h-6 mr-2 animate-spin" />
+        Loading your order...
       </div>
     );
   }
 
-  const estimatedDelivery = new Date();
-  estimatedDelivery.setMinutes(estimatedDelivery.getMinutes() + 8); // 8 minutes from now
-
-  const orderSteps = [
-    { icon: CheckCircle, label: 'Order Confirmed', completed: true },
-    { icon: Package, label: 'Processing', completed: false },
-    { icon: Truck, label: 'Shipped', completed: false },
-    { icon: MapPin, label: 'Delivered', completed: false },
-  ];
+  if (notFound || !order) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center">
+        <p className="text-xl font-semibold mb-4">Order Not Found</p>
+        <Button onClick={() => navigate('/')} className="flex items-center gap-2">
+          <Home className="w-4 h-4" />
+          Go Home
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Success Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            className="w-20 h-20 bg-brand-success rounded-full flex items-center justify-center mx-auto mb-6"
-          >
-            <CheckCircle className="w-10 h-10 text-white" />
-          </motion.div>
-          
-          <h1 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-            Order Confirmed!
-          </h1>
-          <p className="text-lg text-muted-foreground mb-2">
-            Thank you for your purchase. Your order has been received and is being processed.
-          </p>
-          <p className="text-brand-primary font-semibold">
-            Order #{order.id}
-          </p>
-        </motion.div>
+    <div className="min-h-[60vh] flex items-center justify-center px-4 py-10">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-3xl"
+      >
+        <Card className="shadow-md border border-border/20">
+          <CardHeader className="flex flex-col items-center text-center space-y-3">
+            <CheckCircle2 className="w-12 h-12 text-green-500" />
+            <CardTitle className="text-2xl font-bold">
+              Order Placed Successfully!
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Order ID:&nbsp;
+              <span className="font-mono">
+                #{order._id.toString().slice(-8)}
+              </span>
+              &nbsp; • Placed on{' '}
+              {new Date(order.createdAt).toLocaleString()}
+            </p>
+          </CardHeader>
 
-        {/* Order Progress */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-card rounded-2xl p-6 mb-8"
-        >
-          <h2 className="text-xl font-semibold text-foreground mb-6">Order Status</h2>
-          
-          <div className="flex items-center justify-between relative">
-            {orderSteps.map((step, index) => (
-              <React.Fragment key={step.label}>
-                <div className="flex flex-col items-center flex-1 relative z-10">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
-                    step.completed ? 'bg-brand-success text-white' : 'bg-muted text-muted-foreground'
-                  }`}>
-                    <step.icon className="w-6 h-6" />
-                  </div>
-                  <span className={`text-sm font-medium ${
-                    step.completed ? 'text-brand-success' : 'text-muted-foreground'
-                  }`}>
-                    {step.label}
-                  </span>
-                </div>
-                {index < orderSteps.length - 1 && (
-                  <div className={`absolute top-5 left-[calc(50%+24px)] w-[calc(100%-48px)] h-0.5 ${
-                    orderSteps[index + 1].completed ? 'bg-brand-success' : 'bg-muted'
-                  }`} />
-                )}
-              </React.Fragment>
-            ))}
-          </div>
-        </motion.div>
-
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Order Details */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-            className="space-y-6"
-          >
-            {/* Order Items */}
-            <div className="bg-card rounded-2xl p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">
-                Order Items ({order.items.length})
+          <CardContent className="space-y-6">
+            {/* Order items */}
+            <div>
+              <h3 className="font-semibold mb-2 flex items-center gap-2">
+                <ShoppingBag className="w-4 h-4" />
+                Items
               </h3>
-              
-              <div className="space-y-4">
-                {order.items.map((item) => (
-                  <div key={item.id} className="flex items-center space-x-4">
-                    <div className="w-16 h-16 bg-muted rounded-lg overflow-hidden">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
+              <div className="space-y-2">
+                {order.orderItems.map((item) => (
+                  <div
+                    key={item._id}
+                    className="flex items-center justify-between text-sm"
+                  >
+                    <div className="flex items-center gap-3">
+                      {item.image && (
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-10 h-10 rounded object-cover border border-border/20"
+                        />
+                      )}
+                      <div>
+                        <div className="font-medium">{item.name}</div>
+                        <div className="text-muted-foreground">
+                          Qty: {item.qty}
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-foreground">{item.name}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Quantity: {item.quantity}
-                      </p>
+                    <div className="font-semibold">
+                      ₹{(item.price * item.qty).toFixed(2)}
                     </div>
-                    <p className="font-semibold text-foreground">
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </p>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Shipping Address */}
-            <div className="bg-card rounded-2xl p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center">
-                <MapPin className="w-5 h-5 mr-2" />
-                Shipping Address
-              </h3>
-              
-              <div className="text-muted-foreground">
-                <p className="font-medium text-foreground">
-                  {order.shippingAddress.firstName} {order.shippingAddress.lastName}
-                </p>
-                <p>{order.shippingAddress.address}</p>
-                <p>
-                  {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}
+            {/* Shipping & summary */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <h3 className="font-semibold mb-2">Shipping Address</h3>
+                <p className="text-sm text-muted-foreground whitespace-pre-line">
+                  {order.shippingAddress.addressLine1}
+                  {'\n'}
+                  {order.shippingAddress.city}, {order.shippingAddress.state} -{' '}
+                  {order.shippingAddress.pincode}
                 </p>
               </div>
-            </div>
-          </motion.div>
-
-          {/* Order Summary & Delivery Info */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 }}
-            className="space-y-6"
-          >
-            {/* Delivery Information */}
-            <div className="bg-card rounded-2xl p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center">
-                <Calendar className="w-5 h-5 mr-2" />
-                Delivery Information
-              </h3>
-              
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Order Date:</span>
-                  <span className="font-medium text-foreground">
-                    {new Date(order.createdAt).toLocaleDateString()}
+              <div>
+                <h3 className="font-semibold mb-2">Payment</h3>
+                <p className="text-sm text-muted-foreground">
+                  Method: {order.paymentMethod}
+                  <br />
+                  Total Paid:{' '}
+                  <span className="font-semibold text-foreground">
+                    ₹{order.totalPrice.toFixed(2)}
                   </span>
-                </div>
-                
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Estimated Delivery:</span>
-                  <span className="font-medium text-brand-primary">
-                    {estimatedDelivery.toLocaleTimeString()} (8 mins)
-                  </span>
-                </div>
-                
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Delivery Method:</span>
-                  <span className="font-medium text-foreground">
-                    QuickKart Express (5-10 mins)
-                  </span>
-                </div>
+                </p>
               </div>
             </div>
 
-            {/* Order Total */}
-            <div className="bg-card rounded-2xl p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">
-                Order Summary
-              </h3>
-              
-              <div className="space-y-3">
-                <div className="flex justify-between text-lg font-bold text-foreground border-t border-border pt-3">
-                  <span>Total Paid</span>
-                  <span>₹{order.total.toFixed(2)}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="space-y-3">
-              <Link to="/products">
-                <Button className="btn-hero w-full group">
-                  Continue Shopping
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-              
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => navigate('/track-order')}
-              >
-                Track Your Order
+            <div className="pt-4 flex flex-wrap gap-3 justify-between">
+              <Button variant="outline" onClick={() => navigate('/dashboard/orders')}>
+                View Order History
               </Button>
+              <Button onClick={() => navigate('/products')}>Continue Shopping</Button>
             </div>
-          </motion.div>
-        </div>
-
-        {/* What's Next */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="mt-12 bg-gradient-hero rounded-2xl p-8 text-center"
-        >
-          <h3 className="text-xl font-semibold text-foreground mb-4">
-            What happens next?
-          </h3>
-          <div className="grid md:grid-cols-3 gap-6 text-sm text-muted-foreground">
-            <div>
-              <Package className="w-8 h-8 text-brand-primary mx-auto mb-2" />
-              <p className="font-medium text-foreground mb-1">Order Processing</p>
-              <p>We're picking your items from our nearby dark store right now.</p>
-            </div>
-            <div>
-              <Truck className="w-8 h-8 text-brand-primary mx-auto mb-2" />
-              <p className="font-medium text-foreground mb-1">Out for Delivery</p>
-              <p>Your order is on its way and will reach you in 5-10 minutes.</p>
-            </div>
-            <div>
-              <MapPin className="w-8 h-8 text-brand-primary mx-auto mb-2" />
-              <p className="font-medium text-foreground mb-1">Delivered</p>
-              <p>Lightning-fast delivery right to your doorstep!</p>
-            </div>
-          </div>
-        </motion.div>
-      </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 };

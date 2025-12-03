@@ -11,7 +11,8 @@ const orderSchema = mongoose.Schema(
       {
         name: { type: String, required: true },
         qty: { type: Number, required: true },
-        image: { type: String, required: true },
+        image: { type: String, required: false, default: "" },
+
         price: { type: Number, required: true },
         product: {
           type: mongoose.Schema.Types.ObjectId,
@@ -20,22 +21,26 @@ const orderSchema = mongoose.Schema(
         },
       },
     ],
-    shippingAddress: {
-      addressLine1: { type: String, required: true },
-      city: { type: String, required: true },
-      pincode: { type: String, required: true },
-      state: { type: String, required: true },
-      location: {
-        type: {
-          type: String,
-          enum: ['Point'],
-          default: 'Point',
-        },
-        coordinates: {
-          type: [Number], // [longitude, latitude]
-        },
-      },
+   shippingAddress: {
+  addressLine1: { type: String, required: true },
+  city: { type: String, required: true },
+  state: { type: String, required: true },
+  pincode: { type: String, required: true },
+
+  // ✅ Optional location, no geo index needed
+  location: {
+    type: {
+      type: String,
+      enum: ['Point'],
+      default: 'Point',
     },
+    coordinates: {
+      type: [Number],
+      default: [0, 0],
+    },
+  },
+},
+
     paymentMethod: {
       type: String,
       required: true,
@@ -148,7 +153,7 @@ const orderSchema = mongoose.Schema(
 );
 
 // Add a geospatial index
-orderSchema.index({ 'shippingAddress.location': '2dsphere' });
+// orderSchema.index({ 'shippingAddress.location': '2dsphere' });
 
 const Order = mongoose.model('Order', orderSchema);
 
