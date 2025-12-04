@@ -26,6 +26,8 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import toast from 'react-hot-toast';
 import api from '@/services/api';
+import { getImageUrl } from '@/utils/image';
+
 
 // ---------- Types ----------
 interface Address {
@@ -612,9 +614,9 @@ const handleSubmit = async (e: React.FormEvent) => {
                   >
                     <div className="w-14 h-14 bg-muted rounded-lg overflow-hidden flex-shrink-0 border border-border/10">
                       <img
-                        src={item.image}
+                        src={getImageUrl(item)}
                         alt={item.name}
-                        className="w-full h-full object-cover"
+                        className="w-12 h-12 rounded object-cover border border-border/10"
                       />
                     </div>
                     <div className="flex-1 min-w-0">

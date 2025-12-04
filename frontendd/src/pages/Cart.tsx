@@ -6,6 +6,8 @@ import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import BackButton from '@/components/BackButton';
 import { Button } from '@/components/ui/button';
+import { getImageUrl } from '@/utils/image';
+
 
 const Cart: React.FC = () => {
   const {
@@ -116,9 +118,9 @@ const Cart: React.FC = () => {
                     {/* Product Image */}
                     <div className="w-20 h-20 md:w-24 md:h-24 bg-muted rounded-xl overflow-hidden flex-shrink-0 border border-border/10">
                       <img
-                        src={item.product?.image || item.image}
+                        src={getImageUrl(item)}
                         alt={item.product?.name || item.name || 'Product'}
-                        className="w-full h-full object-cover"
+                        className="w-16 h-16 rounded object-cover border border-border/10"
                       />
                     </div>
 

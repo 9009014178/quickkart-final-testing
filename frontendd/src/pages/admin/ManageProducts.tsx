@@ -19,7 +19,16 @@ import {
 import { PlusCircle, Edit, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { productService, Product } from '@/services/productService';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+
+// ✅ shared helper to resolve /uploads/... or full URLs
+import { getProductImageUrl } from '@/utils/imageHelpers';
 
 const ManageProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -33,7 +42,8 @@ const ManageProducts = () => {
         const data = await productService.getAllProductsForAdmin();
         setProducts(data || []);
       } catch (error: any) {
-        const errorMessage = error.response?.data?.message || 'Failed to fetch products';
+        const errorMessage =
+          error.response?.data?.message || 'Failed to fetch products';
         toast.error(errorMessage);
         setProducts([]);
         console.error('Error fetching admin products:', error);
@@ -57,7 +67,8 @@ const ManageProducts = () => {
       setProducts(prev => prev.filter(p => p._id !== productToDelete));
       toast.success('Product deleted successfully', { id: toastId });
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Failed to delete product';
+      const errorMessage =
+        error.response?.data?.message || 'Failed to delete product';
       toast.error(errorMessage, { id: toastId });
       console.error('Error deleting product:', error);
     } finally {
@@ -110,24 +121,32 @@ const ManageProducts = () => {
                 {products.length > 0 ? (
                   products.map(product => {
                     const finalPrice = product.salePrice ?? product.price;
-                    const isDiscounted = product.salePrice && product.salePrice < product.price;
+                    const isDiscounted =
+                      product.salePrice && product.salePrice < product.price;
                     const discountPercent = isDiscounted
-                      ? Math.round(((product.price - product.salePrice!) / product.price) * 100)
+                      ? Math.round(
+                          ((product.price - product.salePrice!) / product.price) *
+                            100
+                        )
                       : 0;
 
                     return (
                       <TableRow key={product._id} className="hover:bg-muted/50">
                         <TableCell>
                           <img
-                            src={product.image || '/images/placeholder.png'}
+                            src={getProductImageUrl(product)}
                             alt={`Image of ${product.name}`}
                             width={50}
                             height={50}
                             className="rounded object-cover aspect-square border border-border/10"
                           />
                         </TableCell>
-                        <TableCell className="font-medium">{product.name}</TableCell>
-                        <TableCell className="hidden md:table-cell">{product.category || '-'}</TableCell>
+                        <TableCell className="font-medium">
+                          {product.name}
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          {product.category || '-'}
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <span className="font-bold text-brand-primary">
@@ -147,7 +166,12 @@ const ManageProducts = () => {
                         </TableCell>
                         <TableCell>{product.stock}</TableCell>
                         <TableCell className="text-right space-x-2">
-                          <Button variant="outline" size="icon" asChild title="Edit Product">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            asChild
+                            title="Edit Product"
+                          >
                             <Link to={`/admin/products/edit/${product._id}`}>
                               <Edit className="h-4 w-4" />
                             </Link>
@@ -166,7 +190,10 @@ const ManageProducts = () => {
                   })
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                    <TableCell
+                      colSpan={6}
+                      className="text-center text-muted-foreground py-8"
+                    >
                       No products found. Add a new product to get started!
                     </TableCell>
                   </TableRow>
@@ -183,9 +210,15 @@ const ManageProducts = () => {
           <DialogHeader>
             <DialogTitle>Confirm Delete</DialogTitle>
           </DialogHeader>
-          <p>Are you sure you want to delete this product? This action cannot be undone.</p>
+          <p>
+            Are you sure you want to delete this product? This action cannot be
+            undone.
+          </p>
           <DialogFooter className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDelete}>

@@ -9,6 +9,8 @@ import ProductCard from '@/components/ProductCard';
 import BackButton from '@/components/BackButton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { getProductImageUrl } from '@/utils/productImage';
+
 
 const categories = [
   'All',
@@ -198,7 +200,7 @@ const Products = () => {
                   <div className="bg-card rounded-2xl p-6 flex gap-6 items-center border">
                     <Link to={`/product/${product._id}`}>
                       <img
-                        src={product.image}
+                        src={getProductImageUrl(product)}
                         className="w-28 h-28 rounded-xl object-cover"
                         alt={product.name}
                       />

@@ -8,6 +8,23 @@ import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/ProductCard';
 import toast from 'react-hot-toast';
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+
+  function getProductImageUrl(product: Product) {
+  const anyProd = product as any;
+
+  const raw: string =
+    anyProd.image ||
+    anyProd.imageUrl ||
+    (Array.isArray(anyProd.images) ? anyProd.images[0] : '');
+
+  if (!raw) return '/placeholder-product.png';
+  if (raw.startsWith('http')) return raw;
+
+  return `${API_BASE_URL}${raw.startsWith('/') ? raw : `/${raw}`}`;
+}
+
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { addToCart } = useCart();
@@ -86,7 +103,7 @@ const ProductDetail = () => {
   const benefits = [
     { icon: Truck, text: 'Free delivery over ₹200' },
     { icon: Shield, text: 'Quality Assurance Guarantee' },
-    { icon: RotateCcw, text: '7-day easy return' },
+    // { icon: RotateCcw, text: '7-day easy return' },
   ];
 
   return (
@@ -108,7 +125,7 @@ const ProductDetail = () => {
           {/* LEFT IMAGES */}
           <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }}>
             <div className="aspect-square rounded-xl overflow-hidden bg-muted shadow">
-              <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+              <img src={getProductImageUrl(product)} alt={product.name} className="w-full h-full object-cover" />
             </div>
           </motion.div>
 

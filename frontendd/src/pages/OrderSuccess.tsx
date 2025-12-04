@@ -7,6 +7,23 @@ import api from '@/services/api';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import toast from 'react-hot-toast';
+import { getProductImageUrl } from '@/utils/productImage';
+import { Product } from '@/services/productService';
+
+function getOrderItemImageUrl(item: any): string {
+  // If the backend stored a direct image string on the order item (cart → order)
+  if (item.image) {
+    return item.image; // this should already be a full URL from getProductImageUrl
+  }
+
+  // If the backend populated `product` object inside each order item
+  if (item.product && typeof item.product === 'object') {
+    return getProductImageUrl(item.product as Product);
+  }
+
+  // Fallback
+  return '/placeholder-product.png';
+}
 
 interface OrderItem {
   _id: string;
@@ -14,6 +31,7 @@ interface OrderItem {
   qty: number;
   price: number;
   image?: string;
+  product?: any;
 }
 
 interface ShippingAddress {
@@ -139,17 +157,15 @@ const OrderSuccess: React.FC = () => {
               <div className="space-y-2">
                 {order.orderItems.map((item) => (
                   <div
-                    key={item._id}
-                    className="flex items-center justify-between text-sm"
+                    key={item._id || (item as any).product}
+                    className="flex items-center justify-between gap-4"
                   >
                     <div className="flex items-center gap-3">
-                      {item.image && (
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-10 h-10 rounded object-cover border border-border/20"
-                        />
-                      )}
+                      <img
+                        src={getOrderItemImageUrl(item)}
+                        alt={item.name}
+                        className="w-10 h-10 rounded object-cover border border-border/20"
+                      />
                       <div>
                         <div className="font-medium">{item.name}</div>
                         <div className="text-muted-foreground">
@@ -190,10 +206,15 @@ const OrderSuccess: React.FC = () => {
             </div>
 
             <div className="pt-4 flex flex-wrap gap-3 justify-between">
-              <Button variant="outline" onClick={() => navigate('/dashboard/orders')}>
+              <Button
+                variant="outline"
+                onClick={() => navigate('/dashboard/orders')}
+              >
                 View Order History
               </Button>
-              <Button onClick={() => navigate('/products')}>Continue Shopping</Button>
+              <Button onClick={() => navigate('/products')}>
+                Continue Shopping
+              </Button>
             </div>
           </CardContent>
         </Card>

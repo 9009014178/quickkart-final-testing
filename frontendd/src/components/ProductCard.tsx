@@ -6,6 +6,32 @@ import { Product } from '@/services/productService';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 
+
+
+// 👇 Backend base URL (API + images)
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+
+function getProductImageUrl(product: Product) {
+  // Your seeded products use `image`
+  // Some older ones might use `imageUrl` or `images[0]`
+  const anyProduct = product as any;
+
+  const raw: string =
+    anyProduct.image ||
+    anyProduct.imageUrl ||
+    (Array.isArray(anyProduct.images) ? anyProduct.images[0] : '');
+
+  // If nothing, show placeholder
+  if (!raw) return '/placeholder-product.png';
+
+  // If already full URL (Cloudinary etc.)
+  if (raw.startsWith('http')) return raw;
+
+  // If backend sent "/uploads/..." or "uploads/..."
+  return `${API_BASE_URL}${raw.startsWith('/') ? raw : `/${raw}`}`;
+}
+
 interface ProductCardProps {
   product: Product;
   index?: number;
@@ -23,7 +49,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, index = 0 }) => {
         _id: product._id,
         name: product.name,
         price: product.salePrice || product.price,
-        image: product.imageUrl,
+        // ✅ use the same helper so cart items also have a valid image URL
+        image: getProductImageUrl(product),
       },
       1
     );
@@ -44,14 +71,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, index = 0 }) => {
           {/* Discount Badge */}
           {product.salePrice && product.price > product.salePrice && (
             <div className="absolute top-4 left-4 z-10 bg-brand-error text-white text-xs font-bold px-2 py-1 rounded-full">
-              {Math.round(((product.price - product.salePrice) / product.price) * 100)}% OFF
+              {Math.round(
+                ((product.price - product.salePrice) / product.price) * 100
+              )}
+              % OFF
             </div>
           )}
 
           {/* Product Image */}
           <div className="relative aspect-square mb-4 overflow-hidden rounded-xl bg-muted">
             <img
-              src={product.imageUrl}
+              src={getProductImageUrl(product)}
               alt={product.name}
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
             />

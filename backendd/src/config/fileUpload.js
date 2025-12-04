@@ -15,7 +15,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'quickkart-products', // A folder name in your Cloudinary account
-    allowed_formats: ['jpg', 'png', 'jpeg','webp'],
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp' , 'avif'],
     transformation: [{ width: 500, height: 500, crop: 'limit' }] // Optional: Resize images
   },
 });

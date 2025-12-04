@@ -1,6 +1,8 @@
+// src/routes/productRoutes.js
 const express = require('express');
 const router = express.Router();
-const { body, param } = require('express-validator'); 
+const { body, param } = require('express-validator');
+
 const {
   getProducts,
   getProductById,
@@ -8,65 +10,116 @@ const {
   createProduct,
   updateProduct,
   createProductReview,
-  // ❌ updateInventoryForStore is removed here
-  getAllProductsAdmin, 
-} = require('../controllers/productController.js'); // Ensure updateInventoryForStore is NOT imported
+  getAllProductsAdmin,
+} = require('../controllers/productController.js');
 
 const { protect, isAdmin } = require('../middlewares/authMiddleware.js');
 const upload = require('../config/fileUpload');
 
-// --- Validation Rules ---
-// ... (Validation rules remain the same: productValidationRules, reviewValidationRules, mongoIdParamValidation) ...
-const productValidationRules = [ /* ... */ ];
-const reviewValidationRules = [ /* ... */ ];
-// ❌ Remove inventoryValidationRules if only used by the deleted route
-// const inventoryValidationRules = [ /* ... */ ]; 
-const mongoIdParamValidation = [ /* ... */ ];
-const reviewParamValidation = [ /* ... */ ];
+// --------------------------------------------------
+// Validation Rules
+// --------------------------------------------------
 
+// For creating/updating products
+const productValidationRules = [
+  body('name')
+    .notEmpty()
+    .withMessage('Product name is required'),
+  body('price')
+    .optional()
+    .isFloat({ min: 0 })
+    .withMessage('Price must be a positive number'),
+  body('brand')
+    .optional()
+    .isString()
+    .withMessage('Brand must be a string'),
+  body('category')
+    .optional()
+    .isString()
+    .withMessage('Category must be a string'),
+  body('description')
+    .optional()
+    .isString()
+    .withMessage('Description must be a string'),
+  body('stock')
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage('Stock must be a non-negative integer'),
+  body('salePrice')
+    .optional()
+    .isFloat({ min: 0 })
+    .withMessage('Sale price must be a positive number'),
+];
 
-// --- Route Definitions ---
+// For adding a review
+const reviewValidationRules = [
+  body('rating')
+    .notEmpty()
+    .withMessage('Rating is required')
+    .isFloat({ min: 1, max: 5 })
+    .withMessage('Rating must be between 1 and 5'),
+  body('comment')
+    .notEmpty()
+    .withMessage('Comment is required')
+    .isString()
+    .withMessage('Comment must be a string'),
+];
+
+// Validate ":id" param as a MongoDB ObjectId
+const mongoIdParamValidation = [
+  param('id', 'Valid product ID is required').isMongoId(),
+];
+
+// Same for review route (also uses :id)
+const reviewParamValidation = [
+  param('id', 'Valid product ID is required').isMongoId(),
+];
+
+// --------------------------------------------------
+// Route Definitions
+// --------------------------------------------------
 
 // --- Admin Route ---
 // GET /api/products/all - Gets ALL products, no filters, for admin
 router.route('/all').get(protect, isAdmin, getAllProductsAdmin);
 
-// --- Public Routes ---
-// GET /api/products - Get all available products (public, potentially filtered)
-router.route('/').get(getProducts);
+// --- Public + Admin Routes on "/" ---
+// GET /api/products       - Public list (with filters/pagination as per controller)
+// POST /api/products      - Admin create product
+router
+  .route('/')
+  .get(getProducts)
+  .post(
+    protect,
+    isAdmin,
+    upload.single('image'),          // expects "image" field in form-data
+    productValidationRules,
+    createProduct
+  );
 
 // --- Routes with ':id' Parameter ---
-
-// GET /api/products/:id - Get a single product by ID
-// PUT /api/products/:id - Update a product (Admin only)
-// DELETE /api/products/:id - Delete a product (Admin only)
-router.route('/:id')
-  .get(mongoIdParamValidation, getProductById) // Public GET for single product
-  .delete(protect, isAdmin, mongoIdParamValidation, deleteProduct) // Admin DELETE
-  .put( // Admin PUT
+// GET /api/products/:id   - Public single product
+// PUT /api/products/:id   - Admin update
+// DELETE /api/products/:id- Admin delete
+router
+  .route('/:id')
+  .get(mongoIdParamValidation, getProductById)
+  .delete(protect, isAdmin, mongoIdParamValidation, deleteProduct)
+  .put(
     protect,
     isAdmin,
     upload.single('image'),
-    [...mongoIdParamValidation, ...productValidationRules], // Ensure updateProduct function exists and is imported
-    updateProduct 
+    [...mongoIdParamValidation, ...productValidationRules],
+    updateProduct
   );
 
-// POST /api/products/:id/reviews - Create a new review for a product (User)
-router.route('/:id/reviews').post(protect, [...reviewParamValidation, ...reviewValidationRules], createProductReview);
-
-// --- Admin Route ---
-// POST /api/products - Create a new product (Admin only)
-router.route('/').post(
-  protect,
-  isAdmin,
-  upload.single('image'),
-  // Consider adding createProductValidation rules here if needed
-  createProduct
-);
-
-// ❌ Removed the route for updating inventory
-// router.route('/:productId/inventory')
-//   .put(protect, isAdmin, inventoryValidationRules, updateInventoryForStore);
-
+// POST /api/products/:id/reviews - Add a review (logged in user)
+router
+  .route('/:id/reviews')
+  .post(
+    protect,
+    [...reviewParamValidation, ...reviewValidationRules],
+    createProductReview
+  );
 
 module.exports = router;
