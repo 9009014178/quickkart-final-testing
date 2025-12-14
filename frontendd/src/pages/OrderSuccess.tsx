@@ -1,5 +1,5 @@
 // src/pages/OrderSuccess.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Home, Loader2, ShoppingBag } from 'lucide-react';
@@ -9,19 +9,15 @@ import { Button } from '@/components/ui/button';
 import toast from 'react-hot-toast';
 import { getProductImageUrl } from '@/utils/productImage';
 import { Product } from '@/services/productService';
+import { useCart } from '@/contexts/CartContext';
 
 function getOrderItemImageUrl(item: any): string {
-  // If the backend stored a direct image string on the order item (cart → order)
   if (item.image) {
-    return item.image; // this should already be a full URL from getProductImageUrl
+    return item.image;
   }
-
-  // If the backend populated `product` object inside each order item
   if (item.product && typeof item.product === 'object') {
     return getProductImageUrl(item.product as Product);
   }
-
-  // Fallback
   return '/placeholder-product.png';
 }
 
@@ -31,7 +27,6 @@ interface OrderItem {
   qty: number;
   price: number;
   image?: string;
-  product?: any;
 }
 
 interface ShippingAddress {
@@ -53,12 +48,16 @@ interface Order {
 const OrderSuccess: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { clearCart } = useCart();          // 👈 NEW
 
   const state = location.state as { orderId?: string } | null;
   const [orderId, setOrderId] = useState<string | null>(state?.orderId || null);
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+
+  // To avoid clearing cart multiple times
+  const cartClearedRef = useRef(false);
 
   // Get orderId either from router state or from localStorage (page refresh)
   useEffect(() => {
@@ -89,6 +88,12 @@ const OrderSuccess: React.FC = () => {
         const { data } = await api.get(`/api/orders/${orderId}`);
         setOrder(data);
         setNotFound(false);
+
+        // 👇 CLEAR CART ON SUCCESSFUL ORDER LOAD (only once)
+        if (!cartClearedRef.current) {
+          clearCart();
+          cartClearedRef.current = true;
+        }
       } catch (err: any) {
         console.error('Failed to load order', err);
         setNotFound(true);
@@ -101,7 +106,7 @@ const OrderSuccess: React.FC = () => {
     };
 
     fetchOrder();
-  }, [orderId]);
+  }, [orderId, clearCart]);
 
   if (loading) {
     return (
@@ -155,11 +160,8 @@ const OrderSuccess: React.FC = () => {
                 Items
               </h3>
               <div className="space-y-2">
-                {order.orderItems.map((item) => (
-                  <div
-                    key={item._id || (item as any).product}
-                    className="flex items-center justify-between gap-4"
-                  >
+                {order.orderItems.map((item: any) => (
+                  <div key={item._id || item.product} className="flex gap-4">
                     <div className="flex items-center gap-3">
                       <img
                         src={getOrderItemImageUrl(item)}
@@ -206,15 +208,10 @@ const OrderSuccess: React.FC = () => {
             </div>
 
             <div className="pt-4 flex flex-wrap gap-3 justify-between">
-              <Button
-                variant="outline"
-                onClick={() => navigate('/dashboard/orders')}
-              >
+              <Button variant="outline" onClick={() => navigate('/dashboard/orders')}>
                 View Order History
               </Button>
-              <Button onClick={() => navigate('/products')}>
-                Continue Shopping
-              </Button>
+              <Button onClick={() => navigate('/products')}>Continue Shopping</Button>
             </div>
           </CardContent>
         </Card>

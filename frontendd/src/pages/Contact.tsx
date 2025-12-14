@@ -36,7 +36,7 @@ const Contact: React.FC = () => {
       icon: Mail,
       title: 'Email Us',
       description: 'Send us an email anytime',
-      contact: 'support@quickkart.com',
+      contact: 'Siddharthsaxena998@gmail.com',
     },
     {
       icon: Phone,
@@ -48,13 +48,13 @@ const Contact: React.FC = () => {
       icon: MapPin,
       title: 'Visit Us',
       description: 'Our headquarters',
-      contact: 'A-123, Sector 62, Noida',
+      contact: 'A-123, Near Nepania / Star Square Indore, Madhya Pradesh',
     },
     {
       icon: Clock,
       title: 'Business Hours',
       description: "We're here to help",
-      contact: 'Mon-Fri: 9AM-6PM, Sat: 10AM-4PM',
+      contact: 'We’re available 24/7 for your support and queries.',
     },
   ];
 
@@ -275,7 +275,7 @@ const Contact: React.FC = () => {
             {/* Google Maps Embed */}
             <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl mb-6">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3503.123456789!2d77.4123456!3d28.567890!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce5f123456789%3A0x123456789abcdef!2sQuick-Kart%20Store!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d117458.20853094535!2d75.78851695!3d22.72420405!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39631d0aa41e4d6b%3A0xd5e0b3f2ac9c3056!2sIndore%2C%20Madhya%20Pradesh!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -293,8 +293,9 @@ const Contact: React.FC = () => {
                 Quick-Kart Headquarters
               </h3>
               <p className="text-muted-foreground text-sm">
-                A-123, Sector 62, Noida<br />
-                Uttar Pradesh, 201301, India
+                Quick-Kart Wholesale,<br />
+                Near Nepania / Star Square Indore, Madhya Pradesh<br />
+                Pin: 452010, India
               </p>
             </div>
           </div>

@@ -33,10 +33,10 @@ const About: React.FC = () => {
   ];
 
   const team = [
-    { name: 'Siddharth Saxena', role: 'Team-Member', image: siddharthImg },
-    { name: 'Shivam Dangi', role: 'Team-Member', image: shivamImg },
-    { name: 'Shreyansh Rathore', role: 'Team-Member', image: shreyanshImg },
-    { name: 'Shlok Rathore', role: 'Team-Member', image: shlokImg },
+    { name: 'Siddharth Saxena', role: 'Backend-Team', image: siddharthImg },
+    { name: 'Shivam Dangi', role: 'Backend-Team', image: shivamImg },
+    { name: 'Shreyansh Rathore', role: 'Frontend-Team', image: shreyanshImg },
+    { name: 'Shlok Rathore', role: 'Frontend-Team', image: shlokImg },
   ];
 
   return (
@@ -57,7 +57,7 @@ const About: React.FC = () => {
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             We're on a mission to revolutionize quick commerce in India by delivering daily essentials 
-            in just 5-10 minutes. Founded in 2024, QuickKart serves thousands of happy customers across 
+            in just 5-10 minutes. Founded in 2025, QuickKart serves thousands of happy customers across 
             major Indian cities with lightning-fast delivery.
           </p>
         </motion.div>

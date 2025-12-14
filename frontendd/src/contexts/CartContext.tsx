@@ -77,6 +77,8 @@ const makeCartItem = (product: Product, quantity: number): CartItem => ({
   quantity,
 });
 
+const STORAGE_KEY = "quickkart_cart";
+
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -86,7 +88,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     try {
       if (typeof window === "undefined") return;
 
-      const stored = window.localStorage.getItem("quickkart_cart");
+      const stored = window.localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored) as any[];
 
@@ -130,7 +132,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   useEffect(() => {
     try {
       if (typeof window === "undefined") return;
-      window.localStorage.setItem("quickkart_cart", JSON.stringify(items));
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
     } catch (err) {
       console.error("Failed to save cart to localStorage:", err);
     }
@@ -185,9 +187,17 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const clearCart = () => {
     setItems([]);
+    try {
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem(STORAGE_KEY);
+      }
+    } catch (err) {
+      console.error("Failed to clear cart from localStorage:", err);
+    }
   };
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+
   const subtotal = items.reduce((sum, item) => {
     const price = item.price ?? item.product.price ?? 0;
     return sum + price * item.quantity;

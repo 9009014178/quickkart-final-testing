@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,7 +24,6 @@ const ChangePasswordPage: React.FC = () => {
 
     const { currentPassword, newPassword, confirmPassword } = formData;
 
-    // Frontend validation
     if (!currentPassword || !newPassword || !confirmPassword) {
       toast.error("All fields are required.");
       return;
@@ -65,6 +65,7 @@ const ChangePasswordPage: React.FC = () => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+
           <div className="space-y-2">
             <Label htmlFor="currentPassword">Current Password</Label>
             <Input
@@ -106,13 +107,36 @@ const ChangePasswordPage: React.FC = () => {
             />
           </div>
 
-          <Button
-            type="submit"
-            disabled={isLoading || !formData.currentPassword || !formData.newPassword || !formData.confirmPassword}
-            className="w-full sm:w-auto"
-          >
-            {isLoading ? 'Updating...' : 'Update Password'}
-          </Button>
+          {/* Buttons: Update Password + Back */}
+          <div className="flex flex-col sm:flex-row sm:justify-between gap-3 mt-4">
+            <Button
+              type="submit"
+              disabled={isLoading || !formData.currentPassword || !formData.newPassword || !formData.confirmPassword}
+              className="w-full sm:w-auto"
+            >
+              {isLoading ? 'Updating...' : 'Update Password'}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => window.history.back()} // Go back
+              className="w-full sm:w-auto"
+            >
+              Back
+            </Button>
+          </div>
+
+          {/* Forgot password link right aligned below buttons */}
+          <div className="flex justify-end mt-2">
+            <Link
+              to="/forgot-password"
+              className="text-brand-primary hover:text-brand-secondary hover:underline transition-colors"
+            >
+              Forgot your current password?
+            </Link>
+          </div>
+
         </form>
       </CardContent>
     </Card>

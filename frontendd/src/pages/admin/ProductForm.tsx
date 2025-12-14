@@ -214,30 +214,33 @@ const ProductForm: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <Label htmlFor="brand">Brand</Label>
-                <Input id="brand" {...register('brand')} placeholder="e.g., Amul" />
-                {errors.brand && <p className="text-red-500 text-xs mt-1">{errors.brand.message}</p>}
-              </div>
-              <div>
-                <Label htmlFor="category">Category</Label>
-                <Select onValueChange={(value) => setValue('category', value, { shouldValidate: true })} value={watch('category')}>
-                  <SelectTrigger id="category">
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Fruits & Vegetables">Fruits & Vegetables</SelectItem>
-                    <SelectItem value="Dairy & Eggs">Dairy & Eggs</SelectItem>
-                    <SelectItem value="Snacks & Beverages">Snacks & Beverages</SelectItem>
-                    <SelectItem value="Personal Care">Personal Care</SelectItem>
-                    <SelectItem value="Household Items">Household Items</SelectItem>
-                    <SelectItem value="Instant Food">Instant Food</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category.message}</p>}
-              </div>
-            </div>
+  <div>
+    <Label htmlFor="brand">Brand</Label>
+    <Input id="brand" {...register('brand')} placeholder="e.g., Amul" />
+    {errors.brand && <p className="text-red-500 text-xs mt-1">{errors.brand.message}</p>}
+  </div>
+  <div>
+    <Label htmlFor="category">Category</Label>
+    <Select onValueChange={(value) => setValue('category', value, { shouldValidate: true })} value={watch('category')}>
+      <SelectTrigger id="category">
+        <SelectValue placeholder="Select a category" />
+      </SelectTrigger>
+      
+      {/* Updated Component Below */}
+      <SelectContent className="bg-white z-50 shadow-lg border"> 
+        <SelectItem value="Fruits & Vegetables">Fruits & Vegetables</SelectItem>
+        <SelectItem value="Dairy & Eggs">Dairy & Eggs</SelectItem>
+        <SelectItem value="Snacks & Beverages">Snacks & Beverages</SelectItem>
+        <SelectItem value="Personal Care">Personal Care</SelectItem>
+        <SelectItem value="Household Items">Household Items</SelectItem>
+        <SelectItem value="Instant Food">Instant Food</SelectItem>
+        <SelectItem value="Other">Other</SelectItem>
+      </SelectContent>
+      
+    </Select>
+    {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category.message}</p>}
+  </div>
+</div>
 
             <div>
               <Label htmlFor="features">Features (comma-separated)</Label>

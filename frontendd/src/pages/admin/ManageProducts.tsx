@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { PlusCircle, Edit, Trash2 } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, ChevronLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { productService, Product } from '@/services/productService';
 import {
@@ -27,8 +27,19 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 
-// ✅ shared helper to resolve /uploads/... or full URLs
-import { getProductImageUrl } from '@/utils/imageHelpers';
+// ✅ Base URL for backend (for seeded images)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+
+// ✅ Helper: handle both Cloudinary & local images
+function getProductImageUrl(product: any) {
+  if (!product.image) return '/images/placeholder.png';
+
+  // Full URL (e.g., Cloudinary)
+  if (product.image.startsWith('http')) return product.image;
+
+  // Relative path (e.g., /uploads/products/amul-butter.jpg)
+  return `${API_BASE_URL}${product.image.startsWith('/') ? product.image : `/${product.image}`}`;
+}
 
 const ManageProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -64,7 +75,7 @@ const ManageProducts = () => {
     const toastId = toast.loading('Deleting product...');
     try {
       await productService.deleteProduct(productToDelete);
-      setProducts(prev => prev.filter(p => p._id !== productToDelete));
+      setProducts((prev) => prev.filter((p) => p._id !== productToDelete));
       toast.success('Product deleted successfully', { id: toastId });
     } catch (error: any) {
       const errorMessage =
@@ -89,7 +100,17 @@ const ManageProducts = () => {
   }
 
   return (
-    <div className="container mx-auto p-4 md:p-8">
+    <div className="container mx-auto p-4 md:p-8 space-y-4">
+      {/* Back button */}
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => window.history.back()}
+        className="flex items-center gap-2 mb-4"
+      >
+        <ChevronLeft className="h-4 w-4" /> Back
+      </Button>
+
       <Card className="shadow-lg">
         <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
@@ -119,13 +140,14 @@ const ManageProducts = () => {
               </TableHeader>
               <TableBody>
                 {products.length > 0 ? (
-                  products.map(product => {
+                  products.map((product) => {
                     const finalPrice = product.salePrice ?? product.price;
                     const isDiscounted =
                       product.salePrice && product.salePrice < product.price;
                     const discountPercent = isDiscounted
                       ? Math.round(
-                          ((product.price - product.salePrice!) / product.price) *
+                          ((product.price - product.salePrice!) /
+                            product.price) *
                             100
                         )
                       : 0;
@@ -215,10 +237,7 @@ const ManageProducts = () => {
             undone.
           </p>
           <DialogFooter className="flex justify-end gap-2 mt-4">
-            <Button
-              variant="outline"
-              onClick={() => setDeleteDialogOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDelete}>

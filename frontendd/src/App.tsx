@@ -32,23 +32,13 @@ const ProductForm = lazy(() => import("@/pages/admin/ProductForm"));
 
 // Customer dashboard pages
 const DashboardPage = lazy(() => import("@/pages/DashboardPage"));
-const EditProfilePage = lazy(
-  () => import("@/pages/dashboard/EditProfilePage")
-);
-const OrderHistoryPage = lazy(
-  () => import("@/pages/dashboard/OrderHistoryPage")
-);
-const ManageAddressesPage = lazy(
-  () => import("@/pages/dashboard/ManageAddressesPage")
-);
-const ChangePasswordPage = lazy(
-  () => import("@/pages/dashboard/ChangePasswordPage")
-);
+const EditProfilePage = lazy(() => import("@/pages/dashboard/EditProfilePage"));
+const OrderHistoryPage = lazy(() => import("@/pages/dashboard/OrderHistoryPage"));
+const ManageAddressesPage = lazy(() => import("@/pages/dashboard/ManageAddressesPage"));
+const ChangePasswordPage = lazy(() => import("@/pages/dashboard/ChangePasswordPage"));
 
 // Forgot / Reset
-const ForgotPasswordPage = lazy(
-  () => import("@/pages/ForgotPasswordPage")
-);
+const ForgotPasswordPage = lazy(() => import("@/pages/ForgotPasswordPage"));
 const ResetPasswordPage = lazy(() => import("@/pages/ResetPasswordPage"));
 
 const queryClient = new QueryClient();
@@ -90,18 +80,9 @@ const App = () => (
                         <Route path="/cart" element={<Cart />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/signup" element={<Signup />} />
-                        <Route
-                          path="/forgot-password"
-                          element={<ForgotPasswordPage />}
-                        />
-                        <Route
-                          path="/reset-password"
-                          element={<ResetPasswordPage />}
-                        />
-                        <Route
-                          path="/order-success"
-                          element={<OrderSuccess />}
-                        />
+                        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                        <Route path="/reset-password" element={<ResetPasswordPage />} />
+                        <Route path="/order-success" element={<OrderSuccess />} />
                         <Route path="/about" element={<About />} />
                         <Route path="/contact" element={<Contact />} />
 
@@ -111,36 +92,26 @@ const App = () => (
                             <Route index element={<EditProfilePage />} />
                             <Route path="profile" element={<EditProfilePage />} />
                             <Route path="orders" element={<OrderHistoryPage />} />
-                            <Route
-                              path="addresses"
-                              element={<ManageAddressesPage />}
-                            />
-                            <Route
-                              path="change-password"
-                              element={<ChangePasswordPage />}
-                            />
+                            <Route path="addresses" element={<ManageAddressesPage />} />
+                            <Route path="change-password" element={<ChangePasswordPage />} />
                           </Route>
                           <Route path="/checkout" element={<Checkout />} />
                         </Route>
 
                         {/* === Admin Only Routes === */}
                         <Route element={<AdminRoute />}>
-                          <Route
-                            path="/admin/dashboard"
-                            element={<AdminDashboard />}
-                          />
-                          <Route
-                            path="/admin/products"
-                            element={<ManageProducts />}
-                          />
-                          <Route
-                            path="/admin/products/new"
-                            element={<ProductForm />}
-                          />
-                          <Route
-                            path="/admin/products/edit/:id"
-                            element={<ProductForm />}
-                          />
+                          {/* Admin Dashboard */}
+                          <Route path="/admin" element={<AdminDashboard />} />
+                          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
+                          {/* Admin Products */}
+                          <Route path="/admin/products" element={<ManageProducts />} />
+                          <Route path="/admin/products/new" element={<ProductForm />} />
+                          <Route path="/admin/products/edit/:id" element={<ProductForm />} />
+
+                          {/* Admin Profile & Change Password */}
+                          <Route path="/admin/profile" element={<EditProfilePage />} />
+                          <Route path="/admin/change-password" element={<ChangePasswordPage />} />
                         </Route>
 
                         {/* === Not Found === */}

@@ -509,6 +509,11 @@
 // ];
 
 
+// src/data/products.ts (or similar)
+
+// --------------------
+// 🛍️ Product Interface
+// --------------------
 export interface Product {
   id: string;
   name: string;
@@ -523,6 +528,9 @@ export interface Product {
   features: string[];
 }
 
+// --------------------
+// 🗂️ Product Categories
+// --------------------
 export const categories = [
   'All',
   'Fruits & Vegetables',
@@ -533,8 +541,68 @@ export const categories = [
   'Instant Food',
 ];
 
-// Empty list - backend will fill this
+// --------------------
+// 🍎 Placeholder Products
+// (Your backend or API will fill this list)
+// --------------------
 export const products: Product[] = [];
 
-// If you still use featuredProducts, keep this
-export const featuredProducts = products.slice(0, 4);
+// --------------------
+// ⭐ Default Featured Products (static fallback)
+// --------------------
+export const featuredProducts: Product[] = [
+  {
+    id: '1',
+    name: 'Fresh Bananas',
+    price: 48,
+    originalPrice: 55,
+    image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400&q=80',
+    category: 'Fruits & Vegetables',
+    description: 'Fresh organic bananas, perfect for your daily potassium needs. Delivered in 10 minutes.',
+    rating: 4.8,
+    reviews: 1247,
+    inventory: 500,
+    features: ['Organic', 'Fresh', 'High Potassium', 'Ready to Eat'],
+  },
+  {
+  id: '2',
+  name: 'Fresh Tomatoes',
+  price: 35,
+  originalPrice: 42,
+  // ✅ FIXED URL (direct Unsplash CDN link)
+  image: 'https://imgs.search.brave.com/cqla8EUczO6i00xljfF6xDuOZV797QRbUXE_JR-LrXg/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/ZnJlZS1waG90by9m/cmVzaC1vcmdhbmlj/LXJlZC10b21hdG9l/cy1ibGFjay1wbGF0/ZS13aGl0ZS13b29k/ZW4tdGFibGUtd2l0/aC1ncmVlbi1yZWQt/Y2hpbGktcGVwcGVy/cy1ncmVlbi1wZXBw/ZXJzLWJsYWNrLXBl/cHBlcmNvcm5zLXNh/bHQtY2xvc2UtdXAt/aGVhbHRoeS1jb25j/ZXB0XzExNDU3OS0x/MjA0LmpwZz9zZW10/PWFpc19oeWJyaWQm/dz03NDAmcT04MA',
+  category: 'Fruits & Vegetables',
+  description: 'Garden fresh tomatoes, ideal for cooking and salads. Farm fresh quality.',
+  rating: 4.6,
+  reviews: 892,
+  inventory: 350,
+  features: ['Farm Fresh', 'Perfect for Cooking', 'Rich in Vitamins', 'Organic'],
+},
+
+  {
+    id: '3',
+    name: 'Green Apples',
+    price: 180,
+    originalPrice: 200,
+    image: 'https://imgs.search.brave.com/QwCjm06Y5Q7DA7EisqhyhMG0qYf91qnnGcq4SHxTLPU/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pLnBp/bmltZy5jb20vb3Jp/Z2luYWxzL2VjLzZk/L2IyL2VjNmRiMjAx/ODdlZmY4ZDE2NTI2/ZmY5ZDY3OGVmODg5/LmpwZw',
+    category: 'Fruits & Vegetables',
+    description: 'Crisp and juicy green apples, perfect for snacking and cooking.',
+    rating: 4.7,
+    reviews: 654,
+    inventory: 200,
+    features: ['Crisp & Juicy', 'Rich in Fiber', 'Natural Sweetness', 'Fresh'],
+  },
+  {
+    id: '4',
+    name: 'Fresh Onions',
+    price: 25,
+    originalPrice: 30,
+    image: 'https://images.unsplash.com/photo-1508747703725-719777637510?w=400&q=80',
+    category: 'Fruits & Vegetables',
+    description: 'Premium quality onions, essential for Indian cooking. Fresh from farms.',
+    rating: 4.5,
+    reviews: 432,
+    inventory: 600,
+    features: ['Premium Quality', 'Essential for Cooking', 'Fresh', 'Long Lasting'],
+  },
+];
